@@ -53,7 +53,6 @@ $c = $complaint->fetch_assoc();
 
 <br>
 
-<!-- These will be functional in Week 3+ -->
 <a href="add_note.php?id=<?= $c['id'] ?>">Add Note</a> |
 <a href="resolve.php?id=<?= $c['id'] ?>">Mark as Resolved</a> |
 <a href="technician_dashboard.php">Back to Dashboard</a>

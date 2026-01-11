@@ -47,7 +47,7 @@ $complaints = $controller->getComplaintsByTechnician($techId);
                 <td><?= htmlspecialchars($c['created_at'] ?? '') ?></td>
 
                 <td>
-                    <!-- These links will be used later in Week 3+ -->
+
                     <a href="view_complaint.php?id=<?= $c['id'] ?>">View</a> |
                     <a href="add_note.php?id=<?= $c['id'] ?>">Add Note</a> |
                     <a href="resolve.php?id=<?= $c['id'] ?>">Resolve</a>
