@@ -1,136 +1,173 @@
 <?php
 session_start();
 
-// CHECK LOGIN + ROLE
-if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
-    header("Location: ../login.php");
-    exit;
-}
-
-// LOAD CONTROLLERS
 require_once '../controller/ComplaintController.php';
 require_once '../controller/ProductController.php';
 require_once '../controller/ComplaintTypeController.php';
 require_once '../controller/UserController.php';
+require_once '../core/auth_middleware.php';
+require_once '../model/User.php';
 
-// FETCH DATA FOR ADMIN DASHBOARD
+require_role(['admin']);
+
+// CONTROLLERS
 $complaintController = new ComplaintController();
-$productController   = new ProductController();
-$typeController      = new ComplaintTypeController();
 $userController      = new UserController();
+$userModel           = new User();
 
-$complaints = $complaintController->getAllComplaints();   
-$products   = $productController->getProducts();
-$types      = $typeController->getTypes();
-$users      = $userController->getAllUsers();
+// FETCH DATA
+$customers           = $userModel->getCustomers();
+$staff               = $userModel->getStaff();
+$assignedComplaints  = $complaintController->getAssignedComplaints();
+$unassignedComplaints= $complaintController->getUnassignedComplaints();
+$techWorkload        = $complaintController->getTechnicianWorkload();
+
+include '../header.php';
 ?>
 
-<?php include '../header.php'; ?>
+<h2>Welcome, Admin!</h2>
 
-<h2>Welcome, admin!</h2>
+<!-- ========================= -->
+<!-- 1. CUSTOMERS TABLE        -->
+<!-- ========================= -->
+<h3>Customers</h3>
+<table border="1" cellpadding="8" cellspacing="0">
+    <tr>
+        <th>User ID</th>
+        <th>Name</th>
+        <th>Email</th>
+        <th>Actions</th>
+    </tr>
 
-<!-- COMPLAINTS TABLE -->
-<h3>All Complaints</h3>
-
-<?php if ($complaints->num_rows === 0): ?>
-    <p>No complaints found.</p>
-<?php else: ?>
-    <table border="1" cellpadding="8" cellspacing="0">
+    <?php while ($row = $customers->fetch_assoc()): ?>
         <tr>
-            <th>ID</th>
-            <th>User</th>
-            <th>Product</th>
-            <th>Type</th>
-            <th>Description</th>
-            <th>Status</th>
-            <th>Submitted</th>
+            <td><?= $row['user_id'] ?></td>
+            <td><?= $row['first_name'] . ' ' . $row['last_name'] ?></td>
+            <td><?= $row['email'] ?></td>
+            <td>
+                <a href="edit_customer.php?id=<?= $row['user_id'] ?>">Edit</a>
+            </td>
         </tr>
+    <?php endwhile; ?>
+</table>
 
-        <?php while ($c = $complaints->fetch_assoc()): ?>
-            <tr>
-                <td><?= htmlspecialchars($c['id']) ?></td>
-                <td><?= htmlspecialchars($c['user_id']) ?></td>
-                <td><?= htmlspecialchars($c['product_id']) ?></td>
-                <td><?= htmlspecialchars($c['complaint_type_id']) ?></td>
-                <td><?= htmlspecialchars($c['description']) ?></td>
-                <td><?= htmlspecialchars($c['status']) ?></td>
-                <td><?= htmlspecialchars($c['created_at'] ?? '') ?></td>
-            </tr>
-        <?php endwhile; ?>
-    </table>
+<br><br>
+
+<!-- ========================= -->
+<!-- 2. STAFF TABLE            -->
+<!-- ========================= -->
+<h3>Technicians & Administrators</h3>
+
+<a href="add_employee.php">➕ Add New Employee</a>
+<br><br>
+
+<table border="1" cellpadding="8" cellspacing="0">
+    <tr>
+        <th>User ID</th>
+        <th>Name</th>
+        <th>Email</th>
+        <th>Role</th>
+        <th>Actions</th>
+    </tr>
+
+    <?php while ($row = $staff->fetch_assoc()): ?>
+        <tr>
+            <td><?= $row['user_id'] ?></td>
+            <td><?= $row['first_name'] . ' ' . $row['last_name'] ?></td>
+            <td><?= $row['email'] ?></td>
+            <td><?= $row['role'] ?></td>
+            <td>
+                <a href="edit_employee.php?id=<?= $row['user_id'] ?>">Edit</a>
+            </td>
+        </tr>
+    <?php endwhile; ?>
+</table>
+
+<br><br>
+
+<!-- ========================= -->
+<!-- 3. OPEN COMPLAINTS (ASSIGNED) -->
+<!-- ========================= -->
+<h3>Open Complaints (Assigned)</h3>
+
+<?php if ($assignedComplaints->num_rows === 0): ?>
+    <p>No assigned open complaints.</p>
+<?php else: ?>
+<table border="1" cellpadding="8" cellspacing="0">
+    <tr>
+        <th>ID</th>
+        <th>Customer</th>
+        <th>Technician</th>
+        <th>Description</th>
+        <th>Status</th>
+    </tr>
+
+    <?php while ($c = $assignedComplaints->fetch_assoc()): ?>
+        <tr>
+            <td><?= $c['id'] ?></td>
+            <td><?= $c['user_id'] ?></td>
+            <td><?= $c['technician_id'] ?></td>
+            <td><?= $c['description'] ?></td>
+            <td><?= $c['status'] ?></td>
+        </tr>
+    <?php endwhile; ?>
+</table>
 <?php endif; ?>
 
 <br><br>
 
-<!-- USERS TABLE -->
-<h3>All Users</h3>
+<!-- ========================= -->
+<!-- 4. OPEN COMPLAINTS (UNASSIGNED) -->
+<!-- ========================= -->
+<h3>Open Complaints (Unassigned)</h3>
 
-<?php if ($users->num_rows === 0): ?>
-    <p>No users found.</p>
+<?php if ($unassignedComplaints->num_rows === 0): ?>
+    <p>No unassigned open complaints.</p>
 <?php else: ?>
-    <table border="1" cellpadding="8" cellspacing="0">
-        <tr>
-            <th>ID</th>
-            <th>Name</th>
-            <th>Email</th>
-            <th>Role</th>
-        </tr>
+<table border="1" cellpadding="8" cellspacing="0">
+    <tr>
+        <th>ID</th>
+        <th>Customer</th>
+        <th>Description</th>
+        <th>Status</th>
+        <th>Assign</th>
+    </tr>
 
-        <?php while ($u = $users->fetch_assoc()): ?>
-            <tr>
-                <td><?= htmlspecialchars($u['id']) ?></td>
-                <td><?= htmlspecialchars($u['first_name'] . ' ' . $u['last_name']) ?></td>
-                <td><?= htmlspecialchars($u['email']) ?></td>
-                <td><?= htmlspecialchars($u['role']) ?></td>
-            </tr>
-        <?php endwhile; ?>
-    </table>
-<?php endif; ?>
+    <?php while ($c = $unassignedComplaints->fetch_assoc()): ?> 
+        <tr> 
+            <td><?= $c['id'] ?></td> 
+            <td><?= $c['user_id'] ?></td> 
+            <td><?= $c['description'] ?></td> 
+            <td><?= $c['status'] ?></td> 
+            <td> 
+                <a href="assign_technician.php?id=<?= $c['id'] ?>">Assign</a> 
+            </td> 
+        </tr> 
+        <?php endwhile; ?> 
+    </table> 
+<?php endif; ?> 
 
-<br><br>
+<br><br> 
 
-<!-- PRODUCTS TABLE -->
-<h3>All Products</h3>
+<!-- ========================= --> 
+<!-- 5. TECHNICIAN WORKLOAD --> 
+<!-- ========================= --> 
+<h3>Technician Workload</h3> 
 
-<?php if ($products->num_rows === 0): ?>
-    <p>No products found.</p>
-<?php else: ?>
-    <table border="1" cellpadding="8" cellspacing="0">
-        <tr>
-            <th>ID</th>
-            <th>Name</th>
-        </tr>
+<table border="1" cellpadding="8" cellspacing="0"> 
+    <tr> 
+        <th>Technician</th> 
+        <th>Open Complaints Assigned</th> 
+    </tr> 
+    
+    <?php while ($t = $techWorkload->fetch_assoc()): ?> 
+        <tr> 
+            <td><?= $t['first_name'] . ' ' . $t['last_name'] ?></td> 
+            <td><?= $t['open_count'] ?></td> 
+        </tr> 
+    <?php endwhile; ?> 
+</table> 
 
-        <?php while ($p = $products->fetch_assoc()): ?>
-            <tr>
-                <td><?= htmlspecialchars($p['id']) ?></td>
-                <td><?= htmlspecialchars($p['name']) ?></td>
-            </tr>
-        <?php endwhile; ?>
-    </table>
-<?php endif; ?>
-
-<br><br>
-
-<!-- COMPLAINT TYPES TABLE -->
-<h3>Complaint Types</h3>
-
-<?php if ($types->num_rows === 0): ?>
-    <p>No complaint types found.</p>
-<?php else: ?>
-    <table border="1" cellpadding="8" cellspacing="0">
-        <tr>
-            <th>ID</th>
-            <th>Type Name</th>
-        </tr>
-
-        <?php while ($t = $types->fetch_assoc()): ?>
-            <tr>
-                <td><?= htmlspecialchars($t['id']) ?></td>
-                <td><?= htmlspecialchars($t['name']) ?></td>
-            </tr>
-        <?php endwhile; ?>
-    </table>
-<?php endif; ?>
+<br><br> 
 
 <?php include '../footer.php'; ?>

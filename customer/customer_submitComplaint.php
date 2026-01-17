@@ -2,6 +2,8 @@
 require_once '../controller/ProductController.php'; 
 require_once '../controller/ComplaintTypeController.php'; 
 require_once '../controller/ComplaintController.php';
+require_once '../core/auth_middleware.php'; 
+require_role(['customer']);
 
 session_start();
 
@@ -77,6 +79,8 @@ $errors = $complaintController->submitComplaint();
     </label> 
     <span class="error"><?= $errors['image'] ?? '' ?></span><br> 
     
+    <input type="hidden" name="user_id" value="<?= $_SESSION['user_id'] ?>">
+
     <button type="submit">Submit Complaint</button> 
 </form> 
 

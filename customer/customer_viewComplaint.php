@@ -1,6 +1,8 @@
 <?php
 session_start();
 require_once '../db_connect.php';
+require_once '../core/auth_middleware.php'; 
+require_role(['customer']);
 
 // Redirect if not logged in or not a customer
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'customer') {
@@ -8,7 +10,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'customer') {
     exit;
 }
 
-$user_id = $_SESSION['user_id'];
+$user_id = (int) $_SESSION['user_id'];
 
 // Get all complaints for this customer
 $sql = "
@@ -70,15 +72,16 @@ function getNotes($conn, $complaint_id) {
                 <?php endif; ?>
             </td>
 
-            <td>
+            <td style="color: <?= $row['status'] === 'open' ? 'red' : 'green' ?>">
                 <?= $row['status'] === 'open' ? 'Open' : 'Closed' ?>
             </td>
+
 
             <td>
                 <?php
                 $notes = getNotes($conn, $row['complaint_id']);
                 if (mysqli_num_rows($notes) === 0) {
-                    echo "No notes yet";
+                    echo "<span style='color:#777;'>No notes yet</span>";
                 } else {
                     while ($n = mysqli_fetch_assoc($notes)) {
                         echo "<strong>" . htmlspecialchars($n['first_name']) . " " . htmlspecialchars($n['last_name']) . ":</strong><br>";

@@ -9,6 +9,8 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'customer') {
 
 // LOAD CONTROLLER
 require_once '../controller/ComplaintController.php';
+require_once 'core/auth_middleware.php'; 
+require_role(['customer']);
 
 $controller = new ComplaintController();
 

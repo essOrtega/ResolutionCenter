@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/../model/User.php';
 require_once __DIR__ . '/../validation.php';
+require_once __DIR__ . '/../core/logger.php';
 
 class UserController {
 
@@ -38,8 +39,25 @@ class UserController {
             $errors['email'] = "A valid email is required.";
         }
 
-        if (!validatePasswordComplexity($password)) {
-            $errors['password'] = "Password must be 8+ chars, with upper, lower, and a number.";
+        // Password Policy Validation
+        if (strlen($password) < 8) {
+            $errors['password'] = "Password must be at least 8 characters long.";
+        }
+
+        if (!preg_match('/[A-Z]/', $password)) {
+            $errors['password'] = "Password must contain at least one uppercase letter.";
+        }
+
+        if (!preg_match('/[a-z]/', $password)) {
+            $errors['password'] = "Password must contain at least one lowercase letter.";
+        }
+
+        if (!preg_match('/[0-9]/', $password)) {
+            $errors['password'] = "Password must contain at least one number.";
+        }
+
+        if (!preg_match('/[\W_]/', $password)) {
+            $errors['password'] = "Password must contain at least one special character.";
         }
 
         if ($password !== $confirm) {
@@ -96,11 +114,13 @@ class UserController {
         $found = $user->findByEmail($email);
 
         if (!$found) {
+            log_event("Failed login: email not found ($email)");
             $errors['general'] = "No account found with that email.";
             return $errors;
         }
 
         if (!password_verify($password, $found['password'])) {
+            log_event("Failed login: wrong password for email ($email)");
             $errors['general'] = "Incorrect password.";
             return $errors;
         }
@@ -121,10 +141,116 @@ class UserController {
         exit;
     }
 
+    public function addEmployee($data) {
+        $errors = [];
+
+        // Basic validation
+        if (empty($data['user_id'])) $errors[] = "User ID is required.";
+        if (empty($data['first_name'])) $errors[] = "First name is required.";
+        if (empty($data['last_name'])) $errors[] = "Last name is required.";
+        if (empty($data['email'])) $errors[] = "Email is required.";
+        if (empty($data['phone_ext'])) $errors[] = "Phone extension is required.";
+        if (empty($data['role'])) $errors[] = "Role is required.";
+        if (empty($data['password'])) $errors[] = "Password is required.";
+
+        if (!empty($errors)) return $errors;
+
+        // Hash password
+        $passwordHash = password_hash($data['password'], PASSWORD_DEFAULT);
+
+        // Prepare data for model
+        $employeeData = [
+            'user_id'     => $data['user_id'],
+            'first_name'  => $data['first_name'],
+            'last_name'   => $data['last_name'],
+            'email'       => $data['email'],
+            'phone_ext'   => $data['phone_ext'],
+            'role'        => $data['role'],
+            'password_hash' => $passwordHash
+        ];
+
+        $user = new User();
+        $user->createEmployee($employeeData);
+
+        return [];
+    }
+
+    public function getUserById($id) {
+        $user = new User();
+        return $user->getUserById($id);
+    }
+
+    public function updateEmployee($id, $data) {
+        $errors = [];
+
+        if (empty($data['first_name'])) $errors[] = "First name is required.";
+        if (empty($data['last_name'])) $errors[] = "Last name is required.";
+        if (empty($data['email'])) $errors[] = "Email is required.";
+        if (empty($data['phone_ext'])) $errors[] = "Phone extension is required.";
+        if (empty($data['role'])) $errors[] = "Role is required.";
+
+        if (!empty($errors)) return $errors;
+
+        $updateData = [
+            'first_name' => $data['first_name'],
+            'last_name'  => $data['last_name'],
+            'email'      => $data['email'],
+            'phone_ext'  => $data['phone_ext'],
+            'role'       => $data['role']
+        ];
+
+        $user = new User();
+        $user->updateEmployee($id, $updateData);
+
+        return [];
+    }
+
+    public function updateCustomer($id, $data) {
+        $errors = [];
+
+        if (empty($data['first_name'])) $errors[] = "First name is required.";
+        if (empty($data['last_name'])) $errors[] = "Last name is required.";
+        if (empty($data['email'])) $errors[] = "Email is required.";
+        if (empty($data['phone'])) $errors[] = "Phone is required.";
+        if (empty($data['street'])) $errors[] = "Street is required.";
+        if (empty($data['city'])) $errors[] = "City is required.";
+        if (empty($data['state'])) $errors[] = "State is required.";
+        if (empty($data['zip'])) $errors[] = "Zip code is required.";
+
+        if (!empty($errors)) return $errors;
+
+        $updateData = [
+            'first_name' => $data['first_name'],
+            'last_name'  => $data['last_name'],
+            'email'      => $data['email'],
+            'phone'      => $data['phone'],
+            'street'     => $data['street'],
+            'city'       => $data['city'],
+            'state'      => $data['state'],
+            'zip'        => $data['zip']
+        ];
+
+        $user = new User();
+        $user->updateCustomer($id, $updateData);
+
+        return [];
+    }
+
     // ADMIN — GET ALL USERS
     public function getAllUsers() {
         $user = new User();
         return $user->getAllUsers();
     }
+
+    public function getCustomers() {
+        $user = new User();
+        return $user->getCustomers();
+    }
+
+    public function getStaff() {
+        $user = new User();
+        return $user->getStaff();
+    }
+
 }
 

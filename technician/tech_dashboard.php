@@ -1,14 +1,11 @@
 <?php
 session_start();
 
-// CHECK LOGIN + ROLE
-if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'technician') {
-    header("Location: ../login.php");
-    exit;
-}
-
 // LOAD CONTROLLER
 require_once '../controller/ComplaintController.php';
+require_once '../core/auth_middleware.php';
+
+require_role(['technician']);
 
 $controller = new ComplaintController();
 
@@ -47,7 +44,7 @@ $complaints = $controller->getComplaintsByTechnician($techId);
                 <td><?= htmlspecialchars($c['created_at'] ?? '') ?></td>
 
                 <td>
-                    <!-- These links will be used later in Week 3+ -->
+                    
                     <a href="view_complaint.php?id=<?= $c['id'] ?>">View</a> |
                     <a href="add_note.php?id=<?= $c['id'] ?>">Add Note</a> |
                     <a href="resolve.php?id=<?= $c['id'] ?>">Resolve</a>

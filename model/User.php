@@ -35,7 +35,7 @@ class User extends Model {
 
     public function updateProfile($id, $data) {
         $sql = "UPDATE users SET first_name=?, last_name=?, street=?, city=?, state=?, zip=?, phone=? 
-                WHERE id=?";
+                WHERE user_id=?";
 
         $stmt = $this->db->prepare($sql);
         $stmt->bind_param(
@@ -53,8 +53,28 @@ class User extends Model {
         return $stmt->execute();
     }
 
+    public function createEmployee($data) {
+        $sql = "INSERT INTO users 
+                (user_id, first_name, last_name, email, phone, role, password_hash)
+                VALUES (?, ?, ?, ?, ?, ?, ?)";
+
+        $stmt = $this->db->prepare($sql);
+        $stmt->bind_param(
+            "issssss",
+            $data['user_id'],
+            $data['first_name'],
+            $data['last_name'],
+            $data['email'],
+            $data['phone'],
+            $data['role'],
+            $data['password_hash']
+        );
+
+        return $stmt->execute();
+    }
+
     public function changePassword($id, $hashedPassword) {
-        $sql = "UPDATE users SET password=? WHERE id=?";
+        $sql = "UPDATE users SET password=? WHERE user_id=?";
         $stmt = $this->db->prepare($sql);
         $stmt->bind_param("si", $hashedPassword, $id);
         return $stmt->execute();
@@ -64,6 +84,82 @@ class User extends Model {
         $sql = "SELECT * FROM users ORDER BY last_name";
         $result = $this->db->query($sql);
         return $result;
+    }
+
+    public function getCustomers() {
+        $sql = "SELECT user_id, first_name, last_name, email, role 
+                FROM users 
+                WHERE role = 'customer'";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute();
+        return $stmt->get_result();
+    }
+
+    public function getStaff() {
+        $sql = "SELECT user_id, first_name, last_name, email, role 
+                FROM users 
+                WHERE role IN ('technician', 'admin')";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute();
+        return $stmt->get_result();
+    }
+
+    public function getUserById($id) {
+        $sql = "SELECT * FROM users WHERE user_id = ?";
+        $stmt = $this->db->prepare($sql);
+        $stmt->bind_param("i", $id);
+        $stmt->execute();
+        return $stmt->get_result();
+    }
+
+    public function updateEmployee($id, $data) {
+        $sql = "UPDATE users 
+                SET first_name=?, last_name=?, email=?, phone=?, role=?
+                WHERE user_id=?";
+
+        $stmt = $this->db->prepare($sql);
+        $stmt->bind_param(
+            "sssssi",
+            $data['first_name'],
+            $data['last_name'],
+            $data['email'],
+            $data['phone'],
+            $data['role'],
+            $id
+        );
+
+        return $stmt->execute();
+    }
+
+    public function updateCustomer($id, $data) {
+        $sql = "UPDATE users 
+                SET first_name=?, last_name=?, email=?, phone=?, street=?, city=?, state=?, zip=?
+                WHERE user_id=?";
+
+        $stmt = $this->db->prepare($sql);
+        $stmt->bind_param(
+            "ssssssssi",
+            $data['first_name'],
+            $data['last_name'],
+            $data['email'],
+            $data['phone'],
+            $data['street'],
+            $data['city'],
+            $data['state'],
+            $data['zip'],
+            $id
+        );
+
+        return $stmt->execute();
+    }
+
+    public function getTechnicians() {
+        $sql = "SELECT user_id, first_name, last_name, email 
+                FROM users 
+                WHERE role = 'technician'";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute();
+        return $stmt->get_result();
     }
 
 }

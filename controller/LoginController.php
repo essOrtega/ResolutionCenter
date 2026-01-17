@@ -1,4 +1,5 @@
 <?php
+
 require_once __DIR__ . '/../model/User.php';
 require_once __DIR__ . '/../validation.php';
 
@@ -36,24 +37,33 @@ class LoginController {
             return $errors;
         }
 
-        if (!password_verify($password, $user['password'])) {
+        if (!password_verify($password, $user['password_hash'])) {
             $errors['general'] = "Incorrect password.";
             return $errors;
         }
 
         // Login success
-        session_start();
-        $_SESSION['user_id'] = $user['id'];
+        if (session_status() === PHP_SESSION_NONE) { 
+            session_start(); 
+        } 
+        
+        session_regenerate_id(true);  
+        $_SESSION['user_id'] = $user['user_id']; 
         $_SESSION['role'] = $user['role'];
 
-        // Redirect based on role
-        if ($user['role'] === 'customer') {
-            header("Location: customer/dashboard.php");
-        } elseif ($user['role'] === 'technician') {
-            header("Location: technician/dashboard.php");
-        } else {
-            header("Location: admin/dashboard.php");
+        // Redirect based on role (absolute paths) 
+        if ($user['role'] === 'customer') { 
+            header("Location: /Ortega_SDC342L_Project_ResolutionCenter/customer/customerDashboard.php"); 
+            exit; 
+        } 
+        
+        if ($user['role'] === 'technician') { 
+            header("Location: /Ortega_SDC342L_Project_ResolutionCenter/technician/tech_dashboard.php"); 
+            exit; 
         }
-        exit;
+        
+        // Default: admin
+        header("Location: /Ortega_SDC342L_Project_ResolutionCenter/admin/admin_dashboard.php"); 
+        exit; 
     }
 }

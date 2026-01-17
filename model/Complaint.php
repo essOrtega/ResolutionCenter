@@ -1,5 +1,7 @@
 <?php
 require_once __DIR__ . '/../core/Model.php';
+require_once '../core/auth_middleware.php'; 
+require_role(['admin']);
 
 class Complaint extends Model {
     protected $table = "complaints";
@@ -79,4 +81,42 @@ class Complaint extends Model {
         $stmt->bind_param("si", $resolutionNotes, $id);
         return $stmt->execute();
     }
+
+    public function addTechnicianNote($complaintId, $techId, $noteText) { 
+        $stmt = $this->conn->prepare(" 
+            INSERT INTO technician_notes (complaint_id, technician_id, note_text) 
+            VALUES (?, ?, ?) 
+        "); 
+        $stmt->bind_param("iis", $complaintId, $techId, $noteText); 
+        return $stmt->execute(); 
+    }
+
+    public function getAllComplaints() {
+        $sql = "SELECT * FROM complaints";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute();
+        return $stmt->get_result();
+    }
+
+    public function getAssignedComplaints() {
+        $sql = "SELECT * FROM complaints WHERE technician_id IS NOT NULL AND status = 'Open'";
+        return $this->db->query($sql);
+    }
+
+    public function getUnassignedComplaints() {
+        $sql = "SELECT * FROM complaints WHERE technician_id IS NULL AND status = 'Open'";
+        return $this->db->query($sql);
+    }
+
+    public function getTechnicianWorkload() {
+        $sql = "
+            SELECT u.first_name, u.last_name, COUNT(c.complaint_id) AS open_count
+            FROM users u
+            LEFT JOIN complaints c ON u.user_id = c.technician_id AND c.status = 'Open'
+            WHERE u.role = 'technician'
+            GROUP BY u.user_id
+        ";
+        return $this->db->query($sql);
+    }
+
 }

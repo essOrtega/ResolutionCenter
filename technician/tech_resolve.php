@@ -1,14 +1,10 @@
 <?php
 session_start();
 
-// CHECK LOGIN + ROLE
-if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'technician') {
-    header("Location: ../login.php");
-    exit;
-}
-
 // LOAD CONTROLLER
 require_once '../controller/ComplaintController.php';
+require_once '../core/auth_middleware.php'; 
+require_role(['technician', 'admin']);
 
 $controller = new ComplaintController();
 
@@ -18,7 +14,7 @@ if (!isset($_GET['id'])) {
     exit;
 }
 
-$complaintId = $_GET['id'];
+$complaintId = (int) $_GET['id'];
 
 // FETCH COMPLAINT DETAILS
 $complaint = $controller->getComplaintById($complaintId);
@@ -33,7 +29,14 @@ $c = $complaint->fetch_assoc();
 // HANDLE FORM SUBMISSION
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
-    echo "<p>Complaint resolved (placeholder). Redirecting...</p>";
+    $note = trim($_POST['notes'] ?? '');
+
+    if ($note !== '') {
+        $controller->addNoteToComplaint($complaintId, $_SESSION['user_id'], $note);
+    }
+
+    $controller->resolveComplaint($complaintId);
+    header("Location: view_complaint.php?id=" . $complaintId);
     exit;
 }
 ?>
