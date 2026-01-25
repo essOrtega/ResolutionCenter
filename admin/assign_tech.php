@@ -2,8 +2,10 @@
 session_start();
 
 // ROLE CHECK
-require_once '../core/auth_middleware.php';
-require_role(['admin']);
+if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') { 
+    header("Location: ../login.php"); 
+    exit; 
+}
 
 // LOAD CONTROLLERS
 require_once '../controller/ComplaintController.php';
@@ -47,10 +49,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 ?>
 
 <?php include '../header.php'; ?>
-
-<h2>Assign Technician to Complaint #<?= htmlspecialchars($c['complaint_id']) ?></h2>
-
-<p><strong>Description:</strong> <?= htmlspecialchars($c['description']) ?></p>
 
 <form method="post">
     <label>Select Technician:</label><br>

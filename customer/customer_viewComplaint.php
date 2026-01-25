@@ -15,7 +15,8 @@ $user_id = (int) $_SESSION['user_id'];
 // Get all complaints for this customer
 $sql = "
     SELECT c.complaint_id, c.description, c.status, c.image_path, 
-           c.created_at, p.name AS product_name, 
+           c.created_at, c.resolution_notes, c.resolution_date, 
+           p.name AS product_name, 
            t.type_name AS complaint_type
     FROM complaints c
     JOIN products p ON c.product_id = p.product_id
@@ -55,6 +56,8 @@ function getNotes($conn, $complaint_id) {
         <th>Image</th>
         <th>Status</th>
         <th>Technician Notes</th>
+        <th>Resolution Notes</th> 
+        <th>Resolution Date</th>
         <th>Submitted</th>
     </tr>
 
@@ -65,10 +68,11 @@ function getNotes($conn, $complaint_id) {
             <td><?= nl2br(htmlspecialchars($row['description'])) ?></td>
 
             <td>
-                <?php if ($row['image_path']): ?>
-                    <img src="../<?= $row['image_path'] ?>" width="120">
-                <?php else: ?>
-                    No image
+                <?php if (!empty($row['image_path'])): ?> 
+                    <img src="../serve_image.php?file=<?= urlencode($row['image_path']) ?>" 
+                        width="120" style="border:1px solid #ccc; padding:3px;"> 
+                <?php else: ?> 
+                    No image 
                 <?php endif; ?>
             </td>
 
@@ -90,6 +94,21 @@ function getNotes($conn, $complaint_id) {
                     }
                 }
                 ?>
+            </td>
+
+            <td> <?php if ($row['status'] === 'closed'): ?> 
+                    <?= nl2br(htmlspecialchars($row['resolution_notes'] ?? '')) ?> 
+                <?php else: ?> 
+                    <span style="color:#777;">Not resolved yet</span> 
+                <?php endif; ?> 
+            </td> 
+            
+            <td> 
+                <?php if ($row['status'] === 'closed'): ?> 
+                    <?= htmlspecialchars($row['resolution_date'] ?? '') ?> 
+                <?php else: ?> 
+                    <span style="color:#777;">—</span> 
+                <?php endif; ?> 
             </td>
 
             <td><?= $row['created_at'] ?></td>

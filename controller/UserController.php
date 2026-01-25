@@ -5,6 +5,12 @@ require_once __DIR__ . '/../core/logger.php';
 
 class UserController {
 
+    private $userModel;
+
+    public function __construct() {
+        $this->userModel = new User();
+    }
+
     // REGISTER NEW USER
     public function register() {
 
@@ -15,16 +21,16 @@ class UserController {
         $errors = [];
 
         // Collect form data
-        $first = trim($_POST['first_name']);
-        $last  = trim($_POST['last_name']);
-        $email = trim($_POST['email']);
-        $password = $_POST['password'];
-        $confirm  = $_POST['confirm_password'];
-        $phone = trim($_POST['phone']);
-        $street = trim($_POST['street']);
-        $city = trim($_POST['city']);
-        $state = trim($_POST['state']);
-        $zip = trim($_POST['zip']);
+        $first = trim($_POST['first_name'] ?? ''); 
+        $last = trim($_POST['last_name'] ?? '');
+        $email = trim($_POST['email'] ?? ''); 
+        $password = $_POST['password'] ?? ''; 
+        $confirm = $_POST['confirm_password'] ?? ''; 
+        $phone = trim($_POST['phone'] ?? ''); 
+        $street = trim($_POST['street'] ?? ''); 
+        $city = trim($_POST['city'] ?? ''); 
+        $state = trim($_POST['state'] ?? ''); 
+        $zip = trim($_POST['zip'] ?? '');
 
         // Validation
         if (!validateRequired($first)) {
@@ -37,6 +43,26 @@ class UserController {
 
         if (!validateEmail($email)) {
             $errors['email'] = "A valid email is required.";
+        }
+
+        if (!validateRequired($phone)) { 
+            $errors['phone'] = "Phone number is required."; 
+        } 
+        
+        if (!validateRequired($street)) { 
+            $errors['street'] = "Street address is required."; 
+        } 
+        
+        if (!validateRequired($city)) { 
+            $errors['city'] = "City is required."; 
+        } 
+        
+        if (!validateRequired($state)) { 
+            $errors['state'] = "State is required."; 
+        } 
+        
+        if (!validateRequired($zip)) { 
+            $errors['zip'] = "Zip code is required."; 
         }
 
         // Password Policy Validation
@@ -58,6 +84,10 @@ class UserController {
 
         if (!preg_match('/[\W_]/', $password)) {
             $errors['password'] = "Password must contain at least one special character.";
+        }
+
+        if (!empty($passwordErrors)) { 
+            $errors['password'] = $passwordErrors; 
         }
 
         if ($password !== $confirm) {
@@ -149,7 +179,7 @@ class UserController {
         if (empty($data['first_name'])) $errors[] = "First name is required.";
         if (empty($data['last_name'])) $errors[] = "Last name is required.";
         if (empty($data['email'])) $errors[] = "Email is required.";
-        if (empty($data['phone_ext'])) $errors[] = "Phone extension is required.";
+        if (empty($data['phone'])) $errors[] = "Phone is required.";
         if (empty($data['role'])) $errors[] = "Role is required.";
         if (empty($data['password'])) $errors[] = "Password is required.";
 
@@ -250,6 +280,27 @@ class UserController {
     public function getStaff() {
         $user = new User();
         return $user->getStaff();
+    }
+
+    public function changePassword($userId, $currentPassword, $newPassword) {
+        $user = $this->userModel->findById($userId);
+
+        if (!$user) {
+            return "User not found.";
+        }
+
+        if (!password_verify($currentPassword, $user['password_hash'])) {
+            return "Current password is incorrect.";
+        }
+
+        $newHash = password_hash($newPassword, PASSWORD_DEFAULT);
+        $this->userModel->updatePassword($userId, $newHash);
+
+        return true;
+    }
+
+    public function getTechnicians() {
+        return $this->userModel->getTechnicians();
     }
 
 }

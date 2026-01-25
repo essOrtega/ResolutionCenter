@@ -1,14 +1,16 @@
 <?php
 session_start();
 
+if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') { 
+    header("Location: ../login.php"); 
+    exit; 
+}
+
 require_once '../controller/ComplaintController.php';
 require_once '../controller/ProductController.php';
 require_once '../controller/ComplaintTypeController.php';
 require_once '../controller/UserController.php';
-require_once '../core/auth_middleware.php';
 require_once '../model/User.php';
-
-require_role(['admin']);
 
 // CONTROLLERS
 $complaintController = new ComplaintController();
@@ -99,15 +101,26 @@ include '../header.php';
         <th>Customer</th>
         <th>Technician</th>
         <th>Description</th>
+        <th>Image</th>
         <th>Status</th>
     </tr>
 
     <?php while ($c = $assignedComplaints->fetch_assoc()): ?>
         <tr>
-            <td><?= $c['id'] ?></td>
+            <td><?= $c['complaint_id'] ?></td>
             <td><?= $c['user_id'] ?></td>
             <td><?= $c['technician_id'] ?></td>
             <td><?= $c['description'] ?></td>
+
+            <td>
+                <?php if (!empty($c['image_path'])): ?> 
+                    <img src="../serve_image.php?file=<?= urlencode($c['image_path']) ?>" 
+                        width="80" style="border:1px solid #ccc; padding:3px;"> 
+                <?php else: ?> 
+                    No image 
+                <?php endif; ?> 
+            </td>
+
             <td><?= $c['status'] ?></td>
         </tr>
     <?php endwhile; ?>
@@ -129,18 +142,29 @@ include '../header.php';
         <th>ID</th>
         <th>Customer</th>
         <th>Description</th>
+        <th>Image</th>
         <th>Status</th>
         <th>Assign</th>
     </tr>
 
     <?php while ($c = $unassignedComplaints->fetch_assoc()): ?> 
         <tr> 
-            <td><?= $c['id'] ?></td> 
+            <td><?= $c['complaint_id'] ?></td> 
             <td><?= $c['user_id'] ?></td> 
             <td><?= $c['description'] ?></td> 
+
+            <td> 
+                <?php if (!empty($c['image_path'])): ?> 
+                    <img src="../serve_image.php?file=<?= urlencode($c['image_path']) ?>" 
+                        width="80" style="border:1px solid #ccc; padding:3px;"> 
+                <?php else: ?>
+                    No image 
+                <?php endif; ?> 
+            </td>
+
             <td><?= $c['status'] ?></td> 
             <td> 
-                <a href="assign_technician.php?id=<?= $c['id'] ?>">Assign</a> 
+                <a href="assign_tech.php?id=<?= $c['technician_id'] ?>">Assign</a> 
             </td> 
         </tr> 
         <?php endwhile; ?> 

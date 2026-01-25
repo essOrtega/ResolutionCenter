@@ -1,9 +1,6 @@
 <?php
 session_start();
 
-require_once '../core/auth_middleware.php';
-require_role(['admin']);
-
 require_once '../controller/UserController.php';
 
 $userController = new UserController();

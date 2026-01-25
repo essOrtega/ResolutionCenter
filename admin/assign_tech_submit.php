@@ -2,8 +2,6 @@
 session_start();
 
 require_once '../controller/ComplaintController.php';
-require_once '../core/auth_middleware.php';
-require_role(['admin']);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 

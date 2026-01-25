@@ -1,10 +1,19 @@
 <?php
 session_start();
 
+if (!empty($_SESSION['force_password_change'])) {
+    header("Location: change_password.php");
+    exit;
+}
+
+// SIMPLE ACCESS CONTROL 
+if (!isset($_SESSION['user_id']) || !in_array($_SESSION['role'], ['technician', 'admin'])) { 
+    header("Location: ../login.php"); 
+    exit; 
+}
+
 // LOAD CONTROLLER
 require_once '../controller/ComplaintController.php';
-require_once '../core/auth_middleware.php'; 
-require_role(['technician', 'admin']);
 
 $controller = new ComplaintController();
 
@@ -27,17 +36,29 @@ if (!$complaint) {
 $c = $complaint->fetch_assoc();
 
 // HANDLE FORM SUBMISSION
+$errors = [];
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $note = trim($_POST['notes'] ?? '');
+    $date = $_POST['resolution_date'] ?? '';
 
-    if ($note !== '') {
-        $controller->addNoteToComplaint($complaintId, $_SESSION['user_id'], $note);
+    if ($note === '') {
+        $errors[] = "Resolution notes are required to close the complaint.";
     }
 
-    $controller->resolveComplaint($complaintId);
-    header("Location: view_complaint.php?id=" . $complaintId);
-    exit;
+    if ($date === '') {
+        $errors[] = "Resolution date is required.";
+    }
+
+    if (empty($errors)) {
+        $controller->addNoteToComplaint($complaintId, $_SESSION['user_id'], $note);
+
+        $controller->resolveComplaint($complaintId, $note, $date);
+   
+        header("Location: view_complaint.php?id=" . $complaintId);
+        exit;
+    }    
 }
 ?>
 
@@ -47,9 +68,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <p><strong>Description:</strong> <?= htmlspecialchars($c['description']) ?></p>
 
+<?php if (!empty($errors)): ?>
+    <div class="error-box"> 
+        <?php foreach ($errors as $e): ?> 
+            <p class="error"><?= htmlspecialchars($e) ?></p> 
+        <?php endforeach; ?> 
+    </div> 
+<?php endif; ?>
+
 <form method="post">
-    <label>Resolution Notes (optional):<br>
+    <label>Resolution Notes:<br>
         <textarea name="notes" rows="5" cols="50"></textarea>
+    </label><br><br>
+
+    <label>Resolution Date:<br>
+        <input type="date" name="resolution_date" value="<?= date('Y-m-d') ?>" required>
     </label><br><br>
 
     <button type="submit">Mark as Resolved</button>

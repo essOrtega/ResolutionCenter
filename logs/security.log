@@ -8,3 +8,9 @@
 [2026-01-17 23:58:12] Unauthorized access attempt by user 2 with role technician
 [2026-01-18 00:00:10] Unauthorized access attempt by user 2 with role technician
 [2026-01-18 00:00:27] Unauthorized access attempt by user 2 with role technician
+[2026-01-25 02:02:20] Session timeout for user 5
+[2026-01-25 02:02:52] Unauthorized access attempt by user 2 with role technician
+[2026-01-25 02:06:47] Unauthorized access attempt by user 2 with role technician
+[2026-01-25 02:08:42] Unauthorized access attempt by user 2 with role technician
+[2026-01-25 02:09:11] Unauthorized access attempt by user 5 with role customer
+[2026-01-25 02:10:17] Unauthorized access attempt by user 2 with role technician

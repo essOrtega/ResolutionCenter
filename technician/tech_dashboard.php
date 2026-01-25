@@ -1,11 +1,18 @@
 <?php
 session_start();
 
+if (!empty($_SESSION['force_password_change'])) {
+    header("Location: change_password.php");
+    exit;
+}
+
+if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'technician') { 
+    header("Location: ../login.php"); 
+    exit; 
+}
+
 // LOAD CONTROLLER
 require_once '../controller/ComplaintController.php';
-require_once '../core/auth_middleware.php';
-
-require_role(['technician']);
 
 $controller = new ComplaintController();
 
@@ -17,7 +24,7 @@ $complaints = $controller->getComplaintsByTechnician($techId);
 <?php include '../header.php'; ?>
 
 <h2>Welcome, technician!</h2>
-<h3>Your Assigned Complaints</h3>
+<h3>Your Assigned Complaints:</h3>
 
 <?php if ($complaints->num_rows === 0): ?>
     <p>No complaints have been assigned to you yet.</p>

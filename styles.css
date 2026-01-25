@@ -1,0 +1,23 @@
+.form-group {
+    margin-bottom: 18px;
+}
+
+label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 6px;
+}
+
+input, select, textarea {
+    padding: 8px;
+    width: 100%;
+    max-width: 350px;
+    margin-top: 3px;
+}
+
+.error { 
+    color: red; 
+    font-size: 14px; 
+    margin-top: 3px; 
+    display: block; 
+}

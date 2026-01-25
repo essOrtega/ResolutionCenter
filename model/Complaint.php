@@ -1,7 +1,5 @@
 <?php
 require_once __DIR__ . '/../core/Model.php';
-require_once '../core/auth_middleware.php'; 
-require_role(['admin']);
 
 class Complaint extends Model {
     protected $table = "complaints";
@@ -58,27 +56,27 @@ class Complaint extends Model {
     }
 
     public function assignTechnician($complaintId, $techId) {
-        $sql = "UPDATE complaints SET technician_id=? WHERE id=?";
+        $sql = "UPDATE complaints SET technician_id=? WHERE complaint_id=?";
         $stmt = $this->db->prepare($sql);
         $stmt->bind_param("ii", $techId, $complaintId);
         return $stmt->execute();
     }
 
     public function getComplaintById($id) {
-        $sql = "SELECT * FROM complaints WHERE id = ?";
+        $sql = "SELECT * FROM complaints WHERE complaint_id = ?";
         $stmt = $this->db->prepare($sql);
         $stmt->bind_param("i", $id);
         $stmt->execute();
         return $stmt->get_result();
     }
 
-    public function resolveComplaint($id, $resolutionNotes) {
+    public function resolveComplaint($id, $resolutionNotes, $resolutionDate) {
         $sql = "UPDATE complaints 
-                SET status='closed', resolution_notes=?, resolution_date=NOW() 
+                SET status='resolved', resolution_notes=?, resolution_date=NOW() 
                 WHERE id=?";
 
         $stmt = $this->db->prepare($sql);
-        $stmt->bind_param("si", $resolutionNotes, $id);
+        $stmt->bind_param("ssi", $resolutionNotes, $resolutionDate, $id);
         return $stmt->execute();
     }
 
@@ -108,15 +106,23 @@ class Complaint extends Model {
         return $this->db->query($sql);
     }
 
-    public function getTechnicianWorkload() {
-        $sql = "
-            SELECT u.first_name, u.last_name, COUNT(c.complaint_id) AS open_count
-            FROM users u
-            LEFT JOIN complaints c ON u.user_id = c.technician_id AND c.status = 'Open'
-            WHERE u.role = 'technician'
-            GROUP BY u.user_id
-        ";
-        return $this->db->query($sql);
+    public function getTechnicianWorkload() { 
+        $sql = " 
+            SELECT u.first_name, u.last_name, COUNT(c.complaint_id) AS open_count 
+            FROM users u 
+            LEFT JOIN complaints c 
+                ON u.user_id = c.technician_id 
+                AND c.status = 'Open' 
+            WHERE u.role = 'technician' 
+            GROUP BY u.user_id 
+        "; 
+        return $this->db->query($sql); 
     }
 
+    public function deleteComplaint($complaintId, $userId) {
+        $sql = "DELETE FROM complaints WHERE complaint_id = ? AND user_id = ?";
+        $stmt = $this->db->prepare($sql);
+        $stmt->bind_param("ii", $complaintId, $userId);
+        return $stmt->execute();
+    }
 }

@@ -58,6 +58,12 @@ class LoginController {
         } 
         
         if ($user['role'] === 'technician') { 
+            $_SESSION['force_password_change'] = true; 
+            header("Location: /Ortega_SDC342L_Project_ResolutionCenter/technician/change_password.php"); 
+            exit; 
+        }
+
+        if ($user['role'] === 'technician') { 
             header("Location: /Ortega_SDC342L_Project_ResolutionCenter/technician/tech_dashboard.php"); 
             exit; 
         }

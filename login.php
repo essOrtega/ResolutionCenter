@@ -1,7 +1,6 @@
 <?php
-require_once 'controller/LoginController.php';
-
 session_start();
+require_once 'controller/LoginController.php';
 
 $controller = new LoginController(); 
 $errors = $controller->login();
@@ -15,7 +14,7 @@ $errors = $controller->login();
     <p class="error"><?= htmlspecialchars($errors['general']) ?></p> 
 <?php endif; ?>
 
-<form method="post" action="login.php">
+<form method="post" action="/Ortega_SDC342L_Project_ResolutionCenter/login.php">
 
     <label>Email:
         <input type="email" name="email"

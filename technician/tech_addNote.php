@@ -1,10 +1,19 @@
 <?php
 session_start();
 
+if (!empty($_SESSION['force_password_change'])) {
+    header("Location: change_password.php");
+    exit;
+}
+
+// SIMPLE ACCESS CONTROL 
+if (!isset($_SESSION['user_id']) || !in_array($_SESSION['role'], ['technician', 'admin'])) { 
+    header("Location: ../login.php"); 
+    exit; 
+}
+
 // LOAD CONTROLLER
 require_once '../controller/ComplaintController.php';
-require_once '../core/auth_middleware.php'; 
-require_role(['technician', 'admin']);
 
 $controller = new ComplaintController();
 

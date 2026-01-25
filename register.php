@@ -11,66 +11,68 @@ $errors = $controller->register();
 
 <h2>Create Your Account</h2>
 
-<?php if (!empty($errors)): ?> 
-    <div class="error-box"> 
-        <?php foreach ($errors as $e): ?> 
-            <p class="error"><?= htmlspecialchars($e) ?></p> 
-        <?php endforeach; ?> 
-    </div> 
-<?php endif; ?>
-
 <form method="post" action="register.php">
+    
+    <div class="form-group"> 
+        <label>First Name:</label> 
+        <input type="text" name="first_name" value="<?= htmlspecialchars($_POST['first_name'] ?? '') ?>"> 
+        <span class="error"><?= $errors['first_name'] ?? '' ?></span> 
+    </div>
 
-    <label>First Name:
-        <input type="text" name="first_name" value="<?= htmlspecialchars($first_name ?? '') ?>">
-    </label>
-    <span class="error"><?= $errors['first_name'] ?? '' ?></span><br>
+    <div class="form-group">
+        <label>Last Name:</label>
+        <input type="text" name="last_name" value="<?= htmlspecialchars($_POST['last_name'] ?? '') ?>">
+        <span class="error"><?= $errors['last_name'] ?? '' ?></span>
+    </div>
 
-    <label>Last Name:
-        <input type="text" name="last_name" value="<?= htmlspecialchars($last_name ?? '') ?>">
-    </label>
-    <span class="error"><?= $errors['last_name'] ?? '' ?></span><br>
+    <div class="form-group">
+        <label>Email:</label>
+        <input type="email" name="email" value="<?= htmlspecialchars($_POST['email'] ?? '') ?>">
+        <span class="error"><?= $errors['email'] ?? '' ?></span>
+    </div>
 
-    <label>Email:
-        <input type="email" name="email" value="<?= htmlspecialchars($email ?? '') ?>">
-    </label>
-    <span class="error"><?= $errors['email'] ?? '' ?></span><br>
+    <div class="form-group">
+        <label>Phone:</label>
+        <input type="text" name="phone" value="<?= htmlspecialchars($_POST['phone'] ?? '') ?>">
+        <span class="error"><?= $errors['phone'] ?? '' ?></span>
+    </div>
 
-    <label>Phone:
-        <input type="text" name="phone" value="<?= htmlspecialchars($phone ?? '') ?>">
-    </label>
-    <span class="error"><?= $errors['phone'] ?? '' ?></span><br>
+    <div class="form-group">
+        <label>Street:</label>
+        <input type="text" name="street" value="<?= htmlspecialchars($_POST['street'] ?? '') ?>">
+        <span class="error"><?= $errors['street'] ?? '' ?></span>
+    </div>
 
-    <label>Street:
-        <input type="text" name="street" value="<?= htmlspecialchars($street ?? '') ?>">
-    </label>
-    <span class="error"><?= $errors['street'] ?? '' ?></span><br>
+    <div class="form-group">
+        <label>City:</label>
+        <input type="text" name="city" value="<?= htmlspecialchars($_POST['city'] ?? '') ?>">
+        <span class="error"><?= $errors['city'] ?? '' ?></span>
+    </div>
 
-    <label>City:
-        <input type="text" name="city" value="<?= htmlspecialchars($city ?? '') ?>">
-    </label>
-    <span class="error"><?= $errors['city'] ?? '' ?></span><br>
+    <div class="form-group">
+        <label>State:</label>
+        <input type="text" name="state" maxlength="2" value="<?= htmlspecialchars($_POST['state'] ?? '') ?>">
+        <span class="error"><?= $errors['state'] ?? '' ?></span>
+    </div>
 
-    <label>State:
-        <input type="text" name="state" maxlength="2" value="<?= htmlspecialchars($state ?? '') ?>">
-    </label>
-    <span class="error"><?= $errors['state'] ?? '' ?></span><br>
+     <div class="form-group">
+        <label>Zip:</label>
+        <input type="text" name="zip" value="<?= htmlspecialchars($_POST['zip'] ?? '') ?>">
+        <span class="error"><?= $errors['zip'] ?? '' ?></span>
+    </div>
 
-    <label>Zip:
-        <input type="text" name="zip" value="<?= htmlspecialchars($zip ?? '') ?>">
-    </label>
-    <span class="error"><?= $errors['zip'] ?? '' ?></span><br>
-
-    <label>Password:
+    <div class="form-group">
+        <label>Password:</label>
         <input type="password" name="password">
-    </label>
-    <span class="error"><?= $errors['password'] ?? '' ?></span><br>
+        <span class="error"><?= $errors['password'] ?? '' ?></span>
+    </div>
 
-    <label>Confirm Password:
+    <div class="form-group">
+        <label>Confirm Password:</label>
         <input type="password" name="confirm_password">
-    </label>
-    <span class="error"><?= $errors['confirm_password'] ?? '' ?></span><br>
-
+        <span class="error"><?= $errors['confirm_password'] ?? '' ?></span>
+    </div>
+    
     <button type="submit">Register</button>
 </form>
 

@@ -22,59 +22,52 @@ class ComplaintController {
             $imagePath = null;
 
             // Handle image upload (optional)
-            if (!empty($_FILES['image']['name'])) { 
+            if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
 
-                try { 
-
+                try{ 
                     $allowedTypes = ['image/jpeg', 'image/png']; 
                     $maxSize = 2 * 1024 * 1024; // 2MB 
                     $fileTmp = $_FILES['image']['tmp_name']; 
                     $fileSize = $_FILES['image']['size']; 
                     $fileType = mime_content_type($fileTmp); 
-                    
+                        
                     // Validate MIME type 
                     if (!in_array($fileType, $allowedTypes)) { 
                         $errors[] = "Only JPG and PNG images are allowed."; 
                         return $errors; 
                     } 
-                    
+                        
                     // Validate size 
                     if ($fileSize > $maxSize) { 
                         $errors[] = "Image must be under 2MB."; 
                         return $errors; 
                     } 
-                    
+                        
                     // Generate safe filename 
                     $ext = ($fileType === 'image/png') ? '.png' : '.jpg'; 
-                    $newName = uniqid('img_', true) . $ext; 
-                    
-                    // Save to uploads folder 
-                    $targetDir = __DIR__ . '/../uploads/'; 
-                    $imagePath = 'uploads/' . $newName; 
-                    move_uploaded_file($fileTmp, $targetDir . $newName); 
-                
-                    // Save to uploads folder 
-                    $targetDir = __DIR__ . '/../uploads/'; 
-                    
+                    $newName = bin2hex(random_bytes(16)) . $ext;
+                        
+                    // Secure storage directory (outside web root)
+                    $targetDir = __DIR__ . '/../../storage/uploads/images/'; 
+                        
                     // Ensure directory exists 
                     if (!is_dir($targetDir)) { 
                         mkdir($targetDir, 0777, true); 
-                        } 
-                    
+                    } 
+                        
                     // Move file 
                     if (!move_uploaded_file($fileTmp, $targetDir . $newName)) { 
                         log_event("Failed to move uploaded file for user {$_POST['user_id']}"); 
                         $errors[] = "Failed to upload image."; 
                         return $errors; 
                     } 
+                        
+                    // Store only filename in DB
+                    $imagePath = 'uploads/' . $newName;
                     
-                    // Store relative path for DB 
-                    $imagePath = 'uploads/' . $newName; 
-
-                } catch (Exception $e) { 
-                    //Error handling 
+                } catch (Exception $e) {
                     $errors['image'] = $e->getMessage(); 
-                    return $errors; 
+                    return $errors;
                 }
             }
 
@@ -90,7 +83,7 @@ class ComplaintController {
             $complaint = new Complaint();
             $complaint->submitComplaint($data);
 
-            header("Location: customer_dashboard.php");
+            header("Location: ../customer/customerDashboard.php?success=1");
             exit;
         }
     }
@@ -132,9 +125,8 @@ class ComplaintController {
         return $complaint->assignTechnician($complaintId, $techId);
     }
 
-    public function resolveComplaint($id, $notes) {
-        $complaint = new Complaint();
-        return $complaint->resolveComplaint($id, $notes);
+    public function resolveComplaint($id, $notes, $date) {
+        return $this->model->resolveComplaint($id, $notes, $date);
     }
 
     public function addNoteToComplaint($complaintId, $techId, $noteText) {
@@ -180,4 +172,8 @@ class ComplaintController {
         return $complaint->assignTechnician($complaintId, $techId);
     }
 
+    public function deleteComplaint($complaintId, $userId) {
+        $complaint = new Complaint();
+        return $complaint->deleteComplaint($complaintId, $userId);
+    }
 }

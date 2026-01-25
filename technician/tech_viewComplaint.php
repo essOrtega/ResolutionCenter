@@ -1,10 +1,19 @@
 <?php
 session_start();
 
+if (!empty($_SESSION['force_password_change'])) {
+    header("Location: change_password.php");
+    exit;
+}
+
+// SIMPLE ACCESS CONTROL 
+if (!isset($_SESSION['user_id']) || !in_array($_SESSION['role'], ['technician', 'admin'])) { 
+    header("Location: ../login.php"); 
+    exit; 
+}
+
 // LOAD CONTROLLER
 require_once '../controller/ComplaintController.php';
-require_once '../core/auth_middleware.php'; 
-require_role(['technician', 'admin']);
 
 $controller = new ComplaintController();
 
@@ -42,8 +51,23 @@ $c = $complaint->fetch_assoc();
     <?php if (!empty($c['image_path'])): ?>
         <tr>
             <th>Image</th>
-            <td><img src="../<?= htmlspecialchars($c['image_path']) ?>" width="200"></td>
+            <td> 
+                <img src="../serve_image.php?file=<?= urlencode($c['image_path']) ?>" 
+                    width="200" style="border:1px solid #ccc; padding:5px;"> 
+            </td>
         </tr>
+    <?php endif; ?>
+
+    <?php if ($c['status'] === 'resolved'): ?> 
+        <tr> 
+            <th>Resolution Notes</th> 
+            <td><?= nl2br(htmlspecialchars($c['resolution_notes'] ?? '')) ?></td> 
+        </tr> 
+        
+        <tr> 
+            <th>Resolution Date</th> 
+            <td><?= htmlspecialchars($c['resolution_date'] ?? '') ?></td> 
+        </tr> 
     <?php endif; ?>
 </table>
 

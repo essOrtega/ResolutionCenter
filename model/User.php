@@ -3,7 +3,7 @@ require_once __DIR__ . '/../core/Model.php';
 
 class User extends Model {
     protected $table = "users";
-
+    
     public function register($data) {
         $sql = "INSERT INTO users (first_name, last_name, email, password, street, city, state, zip, phone)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
@@ -160,6 +160,53 @@ class User extends Model {
         $stmt = $this->db->prepare($sql);
         $stmt->execute();
         return $stmt->get_result();
+    }
+
+    public function emailExists($email) { 
+        $stmt = $this->db->prepare("SELECT user_id FROM users WHERE email = ? LIMIT 1"); 
+        $stmt->bind_param("s", $email); 
+        $stmt->execute(); 
+        $result = $stmt->get_result(); 
+        return $result->num_rows > 0; 
+    }
+
+    public function createUser($first, $last, $email, $password, $phone, $street, $city, $state, $zip) {
+
+        // Hash the password
+        $hashed = password_hash($password, PASSWORD_DEFAULT);
+
+        $sql = "INSERT INTO users 
+                (first_name, last_name, email, password_hash, phone, street, city, state, zip, role) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'customer')";
+
+        $stmt = $this->db->prepare($sql);
+        $stmt->bind_param(
+            "sssssssss",
+            $first,
+            $last,
+            $email,
+            $hashed,
+            $phone,
+            $street,
+            $city,
+            $state,
+            $zip
+        );
+
+        return $stmt->execute();
+    }
+
+    public function findById($id) { 
+        $stmt = $this->db->prepare("SELECT * FROM users WHERE user_id=?"); 
+        $stmt->bind_param("i", $id); 
+        $stmt->execute(); 
+        return $stmt->get_result()->fetch_assoc(); 
+    }
+    
+    public function updatePassword($id, $hash) {
+        $stmt = $this->db->prepare("UPDATE users SET password_hash=? WHERE user_id=?");
+        $stmt->bind_param("si", $hash, $id);
+        return $stmt->execute();
     }
 
 }
