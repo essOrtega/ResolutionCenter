@@ -1,13 +1,13 @@
 # Project Name: Resolution Center
 
 ## Project Description
-This project is a full‑stack PHP web application designed to simulate a real‑world 
+This project is a web application designed to simulate a real‑world 
 customer service Resolution Center. The system allows customers to submit complaints, 
 upload supporting files, and track resolution progress. Administrators manage users and 
 assign technicians, while technicians handle assigned complaints, add notes, and upload 
 diagnostic files.
 The project demonstrates practical skills in database design, secure backend development, 
-MVC architecture, validation, authentication, file handling, and iterative software engineering practices.
+MVC architecture, validation, authentication, file handling, and iterative software development practices.
 
 ## Project Tasks
 - **Task 1: Planning and Design**
