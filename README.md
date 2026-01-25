@@ -46,3 +46,4 @@ MVC architecture, validation, authentication, file handling, and iterative softw
   development, continuous quality checks, and progressive feature integration.
 
 ## Link to Project
+https://github.com/essOrtega/ResolutionCenter.git 
