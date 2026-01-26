@@ -47,3 +47,13 @@ MVC architecture, validation, authentication, file handling, and iterative softw
 
 ## Link to Project
 https://github.com/essOrtega/ResolutionCenter.git 
+
+## Test Accounts ##
+- Admin account login
+  Email: Pmalark@example.com
+  Password: Password123
+- Tech account login
+  Email: Jwick@example.com
+  Password: Password123
+- Customer account login
+  *register here*
