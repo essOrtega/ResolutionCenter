@@ -6,7 +6,7 @@ abstract class Model {
     protected $table;
 
     public function __construct() {
-        $this->db = (new Database())->connect();
+        $this->db = Database::getConnection();
     }
 
     public function findAll() {
@@ -15,7 +15,7 @@ abstract class Model {
     }
 
     public function findById($id) {
-        $sql = "SELECT * FROM {$this->table} WHERE id = ?";
+        $sql = "SELECT * FROM {$this->table} WHERE complaint_id = ?";
         $stmt = $this->db->prepare($sql);
         $stmt->bind_param("i", $id);
         $stmt->execute();
@@ -23,9 +23,10 @@ abstract class Model {
     }
 
     public function delete($id) {
-        $sql = "DELETE FROM {$this->table} WHERE id = ?";
+        $sql = "DELETE FROM {$this->table} WHERE complaint_id = ?";
         $stmt = $this->db->prepare($sql);
         $stmt->bind_param("i", $id);
         return $stmt->execute();
     }
 }
+

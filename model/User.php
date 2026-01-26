@@ -86,9 +86,9 @@ class User extends Model {
         return $result;
     }
 
-    public function getCustomers() {
-        $sql = "SELECT user_id, first_name, last_name, email, role 
-                FROM users 
+   public function getCustomers() {
+        $sql = "SELECT user_id, first_name, last_name, email, phone, street, city, state, zip, role
+                FROM users
                 WHERE role = 'customer'";
         $stmt = $this->db->prepare($sql);
         $stmt->execute();
@@ -96,7 +96,7 @@ class User extends Model {
     }
 
     public function getStaff() {
-        $sql = "SELECT user_id, first_name, last_name, email, role 
+        $sql = "SELECT user_id, first_name, last_name, email, phone, street, city, state, zip, role
                 FROM users 
                 WHERE role IN ('technician', 'admin')";
         $stmt = $this->db->prepare($sql);

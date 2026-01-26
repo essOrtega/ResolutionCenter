@@ -6,26 +6,22 @@ if (!empty($_SESSION['force_password_change'])) {
     exit;
 }
 
-// SIMPLE ACCESS CONTROL 
-if (!isset($_SESSION['user_id']) || !in_array($_SESSION['role'], ['technician', 'admin'])) { 
+if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'technician') { 
     header("Location: ../login.php"); 
     exit; 
 }
 
-// LOAD CONTROLLER
 require_once '../controller/ComplaintController.php';
 
 $controller = new ComplaintController();
 
-// GET COMPLAINT ID
+// Validate complaint ID
 if (!isset($_GET['id'])) {
     echo "No complaint selected.";
     exit;
 }
 
 $complaintId = (int) $_GET['id'];
-
-// FETCH COMPLAINT DETAILS
 $complaint = $controller->getComplaintById($complaintId);
 
 if (!$complaint) {
@@ -35,60 +31,51 @@ if (!$complaint) {
 
 $c = $complaint->fetch_assoc();
 
-// HANDLE FORM SUBMISSION
+// Handle form submission
 $errors = [];
-
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
-    $note = trim($_POST['notes'] ?? '');
-    $date = $_POST['resolution_date'] ?? '';
+    $notes = trim($_POST['resolution_notes'] ?? '');
+    $date = date('Y-m-d H:i:s'); 
 
-    if ($note === '') {
-        $errors[] = "Resolution notes are required to close the complaint.";
-    }
-
-    if ($date === '') {
-        $errors[] = "Resolution date is required.";
+    if ($notes === '') {
+        $errors[] = "Resolution notes are required.";
     }
 
     if (empty($errors)) {
-        $controller->addNoteToComplaint($complaintId, $_SESSION['user_id'], $note);
-
-        $controller->resolveComplaint($complaintId, $note, $date);
-   
-        header("Location: view_complaint.php?id=" . $complaintId);
+        $controller->resolveComplaint($complaintId, $notes, $date);
+        header("Location: tech_viewComplaint.php?id=" . $complaintId);
         exit;
-    }    
+    }
 }
 ?>
 
 <?php include '../header.php'; ?>
 
-<h2>Resolve Complaint #<?= htmlspecialchars($c['id']) ?></h2>
+<h2>Resolve Complaint #<?= htmlspecialchars($c['complaint_id']) ?></h2>
 
 <p><strong>Description:</strong> <?= htmlspecialchars($c['description']) ?></p>
 
 <?php if (!empty($errors)): ?>
-    <div class="error-box"> 
-        <?php foreach ($errors as $e): ?> 
-            <p class="error"><?= htmlspecialchars($e) ?></p> 
-        <?php endforeach; ?> 
-    </div> 
+    <div class="error-box">
+        <?php foreach ($errors as $e): ?>
+            <p class="error"><?= htmlspecialchars($e) ?></p>
+        <?php endforeach; ?>
+    </div>
 <?php endif; ?>
 
 <form method="post">
-    <label>Resolution Notes:<br>
-        <textarea name="notes" rows="5" cols="50"></textarea>
-    </label><br><br>
-
-    <label>Resolution Date:<br>
-        <input type="date" name="resolution_date" value="<?= date('Y-m-d') ?>" required>
-    </label><br><br>
+    <label>Resolution Notes (required):<br>
+        <textarea name="resolution_notes" rows="5" cols="60"><?= htmlspecialchars($_POST['resolution_notes'] ?? '') ?></textarea>
+    </label>
+    <br><br>
 
     <button type="submit">Mark as Resolved</button>
 </form>
 
 <br>
-<a href="view_complaint.php?id=<?= $c['id'] ?>">Back to Complaint</a>
+<a href="tech_viewComplaint.php?id=<?= $c['complaint_id'] ?>">Back to Complaint</a>
 
 <?php include '../footer.php'; ?>
+
+

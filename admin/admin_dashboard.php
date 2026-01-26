@@ -36,16 +36,28 @@ include '../header.php';
 <table border="1" cellpadding="8" cellspacing="0">
     <tr>
         <th>User ID</th>
-        <th>Name</th>
-        <th>Email</th>
+        <th>First Name</th> 
+        <th>Last Name</th> 
+        <th>Email</th> 
+        <th>Phone</th> 
+        <th>Street</th> 
+        <th>City</th> 
+        <th>State</th> 
+        <th>Zip</th>
         <th>Actions</th>
     </tr>
 
     <?php while ($row = $customers->fetch_assoc()): ?>
         <tr>
             <td><?= $row['user_id'] ?></td>
-            <td><?= $row['first_name'] . ' ' . $row['last_name'] ?></td>
-            <td><?= $row['email'] ?></td>
+            <td><?= htmlspecialchars($row['first_name']) ?></td> 
+            <td><?= htmlspecialchars($row['last_name']) ?></td> 
+            <td><?= htmlspecialchars($row['email']) ?></td> 
+            <td><?= htmlspecialchars($row['phone']) ?></td> 
+            <td><?= htmlspecialchars($row['street']) ?></td> 
+            <td><?= htmlspecialchars($row['city']) ?></td> 
+            <td><?= htmlspecialchars($row['state']) ?></td> 
+            <td><?= htmlspecialchars($row['zip']) ?></td>
             <td>
                 <a href="edit_customer.php?id=<?= $row['user_id'] ?>">Edit</a>
             </td>
@@ -66,17 +78,21 @@ include '../header.php';
 <table border="1" cellpadding="8" cellspacing="0">
     <tr>
         <th>User ID</th>
-        <th>Name</th>
-        <th>Email</th>
-        <th>Role</th>
+        <th>First Name</th> 
+        <th>Last Name</th> 
+        <th>Email</th> 
+        <th>Phone</th> 
+        <th>Role</th> 
         <th>Actions</th>
     </tr>
 
     <?php while ($row = $staff->fetch_assoc()): ?>
         <tr>
             <td><?= $row['user_id'] ?></td>
-            <td><?= $row['first_name'] . ' ' . $row['last_name'] ?></td>
-            <td><?= $row['email'] ?></td>
+            <td><?= htmlspecialchars($row['first_name']) ?></td> 
+            <td><?= htmlspecialchars($row['last_name']) ?></td> 
+            <td><?= htmlspecialchars($row['email']) ?></td> 
+            <td><?= htmlspecialchars($row['phone']) ?></td> 
             <td><?= $row['role'] ?></td>
             <td>
                 <a href="edit_employee.php?id=<?= $row['user_id'] ?>">Edit</a>
@@ -109,7 +125,15 @@ include '../header.php';
         <tr>
             <td><?= $c['complaint_id'] ?></td>
             <td><?= $c['user_id'] ?></td>
-            <td><?= $c['technician_id'] ?></td>
+
+            <td>
+            <?php if ($c['technician_id']): ?>
+                <?= htmlspecialchars($c['tech_first_name'] . ' ' . $c['tech_last_name']) ?>
+            <?php else: ?>
+                    Unassigned
+            <?php endif; ?>
+            </td>
+
             <td><?= $c['description'] ?></td>
 
             <td>
@@ -164,7 +188,7 @@ include '../header.php';
 
             <td><?= $c['status'] ?></td> 
             <td> 
-                <a href="assign_tech.php?id=<?= $c['technician_id'] ?>">Assign</a> 
+                <a href="assign_tech.php?id=<?= $c['complaint_id'] ?>">Assign</a> 
             </td> 
         </tr> 
         <?php endwhile; ?> 

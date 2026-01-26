@@ -1,31 +1,17 @@
 <?php
+
 class Database {
-    private $host = "localhost";
-    private $user = "root";
-    private $pass = "";
-    private $name = "resolution_center";
+    private static $conn = null;
 
-    protected $conn;
+    public static function getConnection() {
+        if (self::$conn === null) {
+            self::$conn = new mysqli("localhost", "root", "", "resolution_center");
 
-    public function connect() {
-        if (!$this->conn) {
-            $this->conn = new mysqli(
-                $this->host,
-                $this->user,
-                $this->pass,
-                $this->name
-            );
-
-            if ($this->conn->connect_error) {
-                die("Connection failed: " . $this->conn->connect_error);
+            if (self::$conn->connect_error) {
+                die("Database connection failed: " . self::$conn->connect_error);
             }
         }
-        return $this->conn;
-    }
 
-    public function close() {
-        if ($this->conn) {
-            $this->conn->close();
-        }
+        return self::$conn;
     }
 }

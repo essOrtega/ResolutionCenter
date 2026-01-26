@@ -126,7 +126,8 @@ class ComplaintController {
     }
 
     public function resolveComplaint($id, $notes, $date) {
-        return $this->model->resolveComplaint($id, $notes, $date);
+        $complaint = new Complaint();
+        return $complaint->resolveComplaint($id, $notes, $date);
     }
 
     public function addNoteToComplaint($complaintId, $techId, $noteText) {
@@ -176,4 +177,10 @@ class ComplaintController {
         $complaint = new Complaint();
         return $complaint->deleteComplaint($complaintId, $userId);
     }
+
+    public function getNotesByComplaintId($complaintId) {
+        $complaint = new Complaint();
+        return $complaint->getNotesByComplaintId($complaintId);
+    }
+
 }

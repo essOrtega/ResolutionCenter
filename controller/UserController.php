@@ -179,7 +179,7 @@ class UserController {
         if (empty($data['first_name'])) $errors[] = "First name is required.";
         if (empty($data['last_name'])) $errors[] = "Last name is required.";
         if (empty($data['email'])) $errors[] = "Email is required.";
-        if (empty($data['phone'])) $errors[] = "Phone is required.";
+        if (empty($data['phone'])) $errors[] = "Phone number is required.";
         if (empty($data['role'])) $errors[] = "Role is required.";
         if (empty($data['password'])) $errors[] = "Password is required.";
 
@@ -194,7 +194,7 @@ class UserController {
             'first_name'  => $data['first_name'],
             'last_name'   => $data['last_name'],
             'email'       => $data['email'],
-            'phone_ext'   => $data['phone_ext'],
+            'phone'   => $data['phone'],
             'role'        => $data['role'],
             'password_hash' => $passwordHash
         ];
@@ -216,7 +216,7 @@ class UserController {
         if (empty($data['first_name'])) $errors[] = "First name is required.";
         if (empty($data['last_name'])) $errors[] = "Last name is required.";
         if (empty($data['email'])) $errors[] = "Email is required.";
-        if (empty($data['phone_ext'])) $errors[] = "Phone extension is required.";
+        if (empty($data['phone'])) $errors[] = "Phone is required.";
         if (empty($data['role'])) $errors[] = "Role is required.";
 
         if (!empty($errors)) return $errors;
@@ -225,7 +225,7 @@ class UserController {
             'first_name' => $data['first_name'],
             'last_name'  => $data['last_name'],
             'email'      => $data['email'],
-            'phone_ext'  => $data['phone_ext'],
+            'phone'  => $data['phone'],
             'role'       => $data['role']
         ];
 
@@ -303,5 +303,8 @@ class UserController {
         return $this->userModel->getTechnicians();
     }
 
+    public function getNotesByComplaintId($complaintId) {
+        return $this->model->getNotesByComplaintId($complaintId);
+    }
 }
 

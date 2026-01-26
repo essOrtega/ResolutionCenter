@@ -72,8 +72,8 @@ class Complaint extends Model {
 
     public function resolveComplaint($id, $resolutionNotes, $resolutionDate) {
         $sql = "UPDATE complaints 
-                SET status='resolved', resolution_notes=?, resolution_date=NOW() 
-                WHERE id=?";
+                SET status='resolved', resolution_notes=?, resolution_date=? 
+                WHERE complaint_id=?";
 
         $stmt = $this->db->prepare($sql);
         $stmt->bind_param("ssi", $resolutionNotes, $resolutionDate, $id);
@@ -81,7 +81,7 @@ class Complaint extends Model {
     }
 
     public function addTechnicianNote($complaintId, $techId, $noteText) { 
-        $stmt = $this->conn->prepare(" 
+        $stmt = $this->db->prepare(" 
             INSERT INTO technician_notes (complaint_id, technician_id, note_text) 
             VALUES (?, ?, ?) 
         "); 
@@ -96,9 +96,20 @@ class Complaint extends Model {
         return $stmt->get_result();
     }
 
+
     public function getAssignedComplaints() {
-        $sql = "SELECT * FROM complaints WHERE technician_id IS NOT NULL AND status = 'Open'";
-        return $this->db->query($sql);
+        $sql = "SELECT 
+                    c.*, 
+                    u.first_name AS tech_first_name,
+                    u.last_name AS tech_last_name
+                FROM complaints c
+                LEFT JOIN users u 
+                    ON c.technician_id = u.user_id
+                WHERE c.technician_id IS NOT NULL";
+
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute();
+        return $stmt->get_result();
     }
 
     public function getUnassignedComplaints() {
@@ -125,4 +136,18 @@ class Complaint extends Model {
         $stmt->bind_param("ii", $complaintId, $userId);
         return $stmt->execute();
     }
+
+    public function getNotesByComplaintId($complaintId) {
+        $sql = "SELECT n.*, u.first_name, u.last_name
+                FROM technician_notes n
+                JOIN users u ON n.technician_id = u.user_id
+                WHERE n.complaint_id = ?
+                ORDER BY n.created_at ASC";
+
+        $stmt = $this->db->prepare($sql);
+        $stmt->bind_param("i", $complaintId);
+        $stmt->execute();
+        return $stmt->get_result();
+    }
+
 }

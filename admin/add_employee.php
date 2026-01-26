@@ -1,9 +1,6 @@
 <?php
 session_start();
 
-require_once '../core/auth_middleware.php';
-require_role(['admin']);
-
 require_once '../controller/UserController.php';
 
 $userController = new UserController();
@@ -48,6 +45,16 @@ include '../header.php';
 
     <label>Phone:</label><br>
     <input type="text" name="phone" required><br><br>
+    <script> 
+    document.querySelector('select[name="role"]').addEventListener('change', function() { 
+        const label = document.getElementById('phoneLabel'); 
+        if (this.value === 'technician') { 
+            label.textContent = "Phone Extension:"; 
+        } else { 
+            label.textContent = "Phone:"; 
+        } 
+    }); 
+    </script>
 
     <label>Role:</label><br>
     <select name="role" required>

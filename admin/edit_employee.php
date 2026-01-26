@@ -62,7 +62,7 @@ include '../header.php';
     <input type="email" name="email" value="<?= htmlspecialchars($e['email']) ?>" required><br><br>
 
     <label>Phone:</label><br>
-    <input type="text" name="phone_ext" value="<?= htmlspecialchars($e['phone']) ?>" required><br><br>
+    <input type="text" name="phone" value="<?= htmlspecialchars($e['phone']) ?>" required><br><br>
 
     <label>Role:</label><br>
     <select name="role" required>

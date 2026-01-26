@@ -43,7 +43,7 @@ $complaints = $controller->getComplaintsByTechnician($techId);
 
         <?php while ($c = $complaints->fetch_assoc()): ?>
             <tr>
-                <td><?= htmlspecialchars($c['id']) ?></td>
+                <td><?= htmlspecialchars($c['complaint_id']) ?></td>
                 <td><?= htmlspecialchars($c['product_id']) ?></td>
                 <td><?= htmlspecialchars($c['complaint_type_id']) ?></td>
                 <td><?= htmlspecialchars($c['description']) ?></td>
@@ -52,9 +52,9 @@ $complaints = $controller->getComplaintsByTechnician($techId);
 
                 <td>
                     
-                    <a href="view_complaint.php?id=<?= $c['id'] ?>">View</a> |
-                    <a href="add_note.php?id=<?= $c['id'] ?>">Add Note</a> |
-                    <a href="resolve.php?id=<?= $c['id'] ?>">Resolve</a>
+                    <a href="tech_viewComplaint.php?id=<?= $c['complaint_id'] ?>">View</a> |
+                    <a href="tech_addNote.php?id=<?= $c['complaint_id'] ?>">Add Note</a> |
+                    <a href="tech_resolve.php?id=<?= $c['complaint_id'] ?>">Resolve</a>
                 </td>
             </tr>
         <?php endwhile; ?>
